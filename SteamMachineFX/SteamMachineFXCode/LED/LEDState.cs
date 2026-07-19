@@ -58,7 +58,6 @@ public sealed class LEDState
             
         foreach (var led in states)
         {
-            SteamMachineFX.Logger.Info($"Writing LED {led.Number}...");
             settings.Add(led.Number, new LEDSettings
             {
                 Brightness = int.Parse(led.Brightness),
@@ -85,18 +84,23 @@ public sealed class LEDState
 
     private static void WriteConfigToFile(LEDConfig config)
     {
-        const string filePath = "/home/deck/led-game-broker/leds.json";
-            
-        var options = new JsonSerializerOptions
+        try
         {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+            const string filePath = "/home/deck/steam-machine-fx-broker/leds.json";
 
-        var json = JsonSerializer.Serialize(config, options);
-        File.WriteAllText(filePath, json);
-        
-        SteamMachineFX.Logger.Info($"Writing {json}");
-        SteamMachineFX.Logger.Info($"From {config}");
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            var json = JsonSerializer.Serialize(config, options);
+            File.WriteAllText(filePath, json);
+        }
+        catch (Exception e)
+        {
+            SteamMachineFX.Logger.Error("Failed to write updated leds.json with exception");
+            SteamMachineFX.Logger.Error(e.ToString());
+        }
     }
 }

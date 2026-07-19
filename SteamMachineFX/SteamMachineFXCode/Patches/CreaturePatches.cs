@@ -11,8 +11,7 @@ internal class CreatureHelper
     {
         var player = creature.Player;
         if (!creature.IsPlayer || player == null || !LocalContext.IsMe(player)) return;
-        // LEDManager.WriteHealthToLEDs(player.Creature);
-        SteamMachineFX.Logger.Info("Bingo!");
+        LEDManager.WriteHealthToLEDs(player.Creature);
     }
 }
 

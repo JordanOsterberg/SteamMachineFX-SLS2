@@ -16,26 +16,37 @@ public partial class SteamMachineFX : Node
 
 	public static void Initialize()
 	{
-		if (Directory.Exists("/sys/class/leds"))
+		if (!Directory.Exists("/sys/class/leds"))
 		{
-			var directories = Directory.GetDirectories("/sys/class/leds", "valve-leds*");
-			if (directories.Length > 0)
-			{
-				Logger.Info(
-					$"Found appropriate LED directories (total {directories.Length}), initializing patches & storing current LED state.");
-
-				RunManagerHelper.Instance.Configure();
-				Patch();
-				
-				LEDManager.StoreInitialLEDState();
-
-				return;
-			}
+			LogWrongLEDsWarning();
+			return;
+		}
+		
+		var directories = Directory.GetDirectories("/sys/class/leds", "valve-leds*");
+		if (directories.Length <= 0)
+		{
+			LogWrongLEDsWarning();
+			return;
 		}
 
-		Logger.Warn("Did not find appropriate LED directories, skipping initialization. If you are using a Steam Machine, please report this as a bug.");
+		if (!Directory.Exists("/home/deck/steam-machine-fx-broker/"))
+		{
+			Logger.Error("Please install SteamMachineFX before using this mod -- https://github.com/JordanOsterberg/SteamMachineFX-Installer");
+			return;
+		}
+		
+		Logger.Info($"Found appropriate LED directories (total {directories.Length}), initializing patches & storing current LED state.");
+		
+		Patch();
+				
+		LEDManager.StoreInitialLEDState();
 	}
 
+	private static void LogWrongLEDsWarning()
+	{
+		Logger.Warn("Did not find appropriate LED directories, skipping initialization. If you are using a Steam Machine, please report this as a bug.");
+	}
+	
 	private static void Patch()
 	{
 		Harmony harmony = new(ModId);
