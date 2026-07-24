@@ -23,7 +23,7 @@ public sealed class LEDState
             .Reverse()
             .ToList();
     }
-        
+    
     private static readonly Regex LEDNumberingRegex =
         new Regex(@"valve-leds\[(\d+)\]$");
 
@@ -72,6 +72,14 @@ public sealed class LEDState
             Leds = settings
         });
     }
+    
+    // MARK: - LED Serialization
+    
+    private static readonly JsonSerializerOptions _options = new()
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public static void DisableLEDMonitor()
     {
@@ -88,13 +96,7 @@ public sealed class LEDState
         {
             const string filePath = "/home/deck/steam-machine-fx-broker/leds.json";
 
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            var json = JsonSerializer.Serialize(config, options);
+            var json = JsonSerializer.Serialize(config, _options);
             File.WriteAllText(filePath, json);
         }
         catch (Exception e)
